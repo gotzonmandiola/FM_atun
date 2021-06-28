@@ -1,17 +1,21 @@
 #leer los datos------
 library(tidyverse)
 library(caret)
+library(recipes)
+library(mice)
+library(VIM)
 #setwd(dir = "C:/Users/Gotzon Mandiola/Desktop/datos")
 datos <- read.table(file = "datos/ts_fm_intersected_wide.csv", header = T, sep = ",", dec = ".")
-datos %>% purrr::map_dbl(.f = ~ sum(is.na))
-datos.sinna <- datos %>% select(-X98500)
-names(datos)
-datos <- datos.sinna %>% 
+datos <- datos %>% 
   filter(sp %in% c("skj", "yft")) %>%
   select(-c(ref, set, time, z.038, z.070, z.120, z.200))
+#try data imputation as preprocessing 
+datis = mice(datos, m =1, maxit = 50, method = "pmm", seed = 500) #generate new data
+datis$imp$X98500 #to check all 5 sets of imputed values
+tail(datis$imp$X98500)
+completeData <- complete(datis) #add the generated new data back to original data
+#generate missing data
 
-any(is.na(datos)) #hay valores ausentes, no funcionan los modelos.
-sum(is.na(datos)) #hay 406 resultados con Na
 
 #1.GBM model, Gradient Boosting Machine ===============
 
@@ -44,7 +48,7 @@ control_train = trainControl(
 
 #Ajuste de modelo
 gbm_model = train(sp ~ ., 
-                  data = datos,
+                  data = completeData,
                   method = "gbm",
                   tuneGrid = hiperparametros_gbm,
                   trControl = control_train
@@ -75,7 +79,7 @@ control_train = trainControl(
 
 #Ajuste de modelo
 rf_model = train(sp ~ ., 
-                 data = datos,
+                 data = completeData,
                  method = "ranger",
                  tuneGrid = hiperparametros_rf,
                  trControl = control_train,
@@ -103,7 +107,7 @@ control_train = trainControl(
 
 #Ajuste de modelo
 svm_model = train(sp ~ ., 
-                  data = datos,
+                  data = completeData,
                   method = "svmRadial",
                   tuneGrid = hiperparametros_svm,
                   trControl = control_train,
@@ -159,7 +163,14 @@ t.test_1 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_rf$rf.valor)
 t.test_2 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_svm$svm.valor)
 t.test_3 = t.test(x = accuracy_svm$svm.valor, y = accuracy_rf$rf.valor)
 
-accuracy_with.na = data.frame(median(accuracy_gbm$gbm.valor), 
-                             median(accuracy_svm$svm.valor), 
-                             median(accuracy_rf$rf.valor))
 
+fix.na.accuracy = data.frame(median(accuracy_gbm$gbm.valor), 
+           median(accuracy_svm$svm.valor), 
+           median(accuracy_rf$rf.valor))
+
+comp = accuracy_with.na %>%
+  rbind(fix.na.accuracy)
+
+rownames(comp) = list("with.na", "fix.na")
+colnames(comp) = c("gbm", "svm", "rf")
+comp
