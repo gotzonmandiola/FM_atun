@@ -154,9 +154,9 @@ accuracy_allmodels %>%
   facet_wrap(~ accuracy_allmodels$modelo)
 
 #accuracy por modelo------------
-accuracy_gbm = data.frame(ac["gbm"])
-accuracy_rf = data.frame(ac["rf"])
-accuracy_svm = data.frame(ac["svm"])
+accuracy_gbm_imp = data.frame(ac["gbm"])
+accuracy_rf_imp = data.frame(ac["rf"])
+accuracy_svm_imp = data.frame(ac["svm"])
 
 #test-estadistico para comparar modelos ------
 t.test_1 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_rf$rf.valor)

@@ -159,7 +159,7 @@ svm_model = train(sp ~ .,
 pred10 = predict(svm_model, newdata = test10)
 pred.metric10 = postResample(test10$sp, pred10)
 #results_svm-----
-results_svm = rbind(pred.metric1, pred.metric2, pred.metric3, pred.metric4, pred.metric5, pred.metric6, pred.metric7,
+results_svm_all_sep = rbind(pred.metric1, pred.metric2, pred.metric3, pred.metric4, pred.metric5, pred.metric6, pred.metric7,
                     pred.metric8, pred.metric9, pred.metric10)
 
 
@@ -245,7 +245,7 @@ gbm_model = train(sp ~ .,
 pred10_2 = predict(gbm_model, newdata = test10)
 pred.metric10_2 = postResample(test10$sp, pred10_2)
 #results_gbm-----
-results_gbm = rbind(pred.metric1_2, pred.metric2_2, pred.metric3_2, pred.metric4_2, pred.metric5_2, 
+results_gbm_all_sep = rbind(pred.metric1_2, pred.metric2_2, pred.metric3_2, pred.metric4_2, pred.metric5_2, 
                     pred.metric6_2, pred.metric7_2, pred.metric8_2, pred.metric9_2, pred.metric10_2)
 
 #modelos Random Forest-------
@@ -330,8 +330,8 @@ rf_model = train(sp ~ .,
 pred10_3 = predict(rf_model, newdata = test10)
 pred.metric10_3 = postResample(test10$sp, pred10_3)
 #results_rf-----
-results_rf = rbind(pred.metric1_3, pred.metric2_3, pred.metric3_3, pred.metric4_3, pred.metric5_3, 
+results_rf_all_sep = rbind(pred.metric1_3, pred.metric2_3, pred.metric3_3, pred.metric4_3, pred.metric5_3, 
                    pred.metric6_3, pred.metric7_3, pred.metric8_3, pred.metric9_3, pred.metric10_3)
 #all_results-----
-rbind(results_svm, results_gbm, results_rf)
+rbind(results_svm_all_sep, results_gbm_all_sep, results_rf_all_sep)
 
