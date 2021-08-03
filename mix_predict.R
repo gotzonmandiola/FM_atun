@@ -122,7 +122,7 @@ skjmix %>%
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
   labs(title="SKJ",
        x="valor de umbral",
-       y="Acierto",
+       y="Error",
        caption="Fuente: ",
        colour = "modelo y lance")
 
@@ -135,7 +135,7 @@ yftmix %>%
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
   labs(title="YFT",
        x="valor de umbral",
-       y="Acierto",
+       y="Error",
        caption="Fuente: ",
        colour = "modelo y lance")
 
@@ -148,6 +148,6 @@ othermix %>%
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
   labs(title="OTHER",
        x="valor de umbral",
-       y="Acierto",
+       y="Error",
        caption="Fuente: ",
        colour = "modelo y lance")

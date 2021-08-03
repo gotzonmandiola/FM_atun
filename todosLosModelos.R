@@ -135,8 +135,12 @@ read.delim(file = "resultados/models_results.csv", header = T, sep = ";")
 resultados_modelos = metricas_resamples %>% 
   split(f = metricas_resamples$metrica)
 accuracy_allmodels = resultados_modelos$Accuracy #para tener un df y poder hacer la grafica
+kappa_allmodels = resultados_modelos$Kappa
 ac = accuracy_allmodels%>% #para separar los resultados por modelos y poder hacer el test estadistico
   split(f = accuracy_allmodels$modelo)
+
+kp = kappa_allmodels%>% #para separar los resultados por modelos y poder hacer el test estadistico
+  split(f = kappa_allmodels$modelo)
 
 #visualizar resultados de accuracy
 accuracy_allmodels %>%
@@ -144,15 +148,19 @@ accuracy_allmodels %>%
   geom_point()+
   facet_wrap(~ accuracy_allmodels$modelo)
 
-#accuracy por modelo------------
+#accuracy y kappa por modelo------------
 accuracy_gbm_10 = data.frame(ac["gbm"])
 accuracy_rf_10 = data.frame(ac["rf"])
 accuracy_svm_10 = data.frame(ac["svm"])
 
+kappa_gbm_10 = data.frame(kp["gbm"])
+kappa_rf_10 = data.frame(kp["rf"])
+kappa_svm_10 = data.frame(kp["svm"])
+
 #test-estadistico para comparar modelos ------
-t.test_1 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_rf$rf.valor)
-t.test_2 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_svm$svm.valor)
-t.test_3 = t.test(x = accuracy_svm$svm.valor, y = accuracy_rf$rf.valor)
+t.test_1 = t.test(x = accuracy_gbm_10$gbm.valor, y = accuracy_rf_10$rf.valor)
+t.test_2 = t.test(x = accuracy_gbm_10$gbm.valor, y = accuracy_svm_10$svm.valor)
+t.test_3 = t.test(x = accuracy_svm_10$svm.valor, y = accuracy_rf_10$rf.valor)
 
 
 

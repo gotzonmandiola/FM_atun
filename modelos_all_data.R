@@ -136,12 +136,15 @@ metricas_resamples <- resultados_resamples$values %>%
            sep = "~", remove = TRUE)
 metricas_resamples %>% head()
 write.table(x = metricas_resamples, file = "models_results.csv", sep = ";", col.names = T, row.names = F)
-#separar accuracy por modelos
+#separar accuracy y kappa por modelos
 resultados_modelos = metricas_resamples %>% 
   split(f = metricas_resamples$metrica)
 accuracy_allmodels = resultados_modelos$Accuracy #para tener un df y poder hacer la grafica
 ac = accuracy_allmodels%>% #para separar los resultados por modelos y poder hacer el test estadistico
   split(f = accuracy_allmodels$modelo)
+kappa_allmodels = resultados_modelos$Kappa #para tener un df y poder hacer la grafica
+kp = kappa_allmodels%>% #para separar los resultados por modelos y poder hacer el test estadistico
+  split(f = kappa_allmodels$modelo)
 
 #visualizar resultados de accuracy
 accuracy_allmodels %>%
@@ -153,7 +156,9 @@ accuracy_allmodels %>%
 accuracy_gbm_all = data.frame(ac["gbm"])
 accuracy_rf_all = data.frame(ac["rf"])
 accuracy_svm_all = data.frame(ac["svm"])
-
+kappa_gbm_all = data.frame(kp["gbm"])
+kappa_rf_all = data.frame(kp["rf"])
+kappa_svm_all = data.frame(kp["svm"])
 #test-estadistico para comparar modelos ------
 t.test_1 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_rf$rf.valor)
 t.test_2 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_svm$svm.valor)
