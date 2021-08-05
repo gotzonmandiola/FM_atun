@@ -23,7 +23,7 @@ pre_gbm69 = predict(gbm_model, newdata = lance69, type = "prob")
 pre_rf69 = predict(rf_model, newdata = lance69, type = "prob")
 
 #compare mix bio data, datos de lances mixtos tidy----
-mix_data = read.table("datos\\mix_bio_data_tidy.csv", header = TRUE, sep = ",")
+mix_data = read.table("datos\\mix_bio_data_tidy.csv", header = TRUE, sep = ",", dec = ".")
 #porcentajes reales de cada especie en lances mixtos----
 #60
 mix_60_skj = mix_data %>%
@@ -151,3 +151,9 @@ othermix %>%
        y="Error",
        caption="Fuente: ",
        colour = "modelo y lance")
+
+
+#ver tallas medias para cada especie----
+mix_data %>%
+  filter(sp == "skj") %>%
+  mean(cm)

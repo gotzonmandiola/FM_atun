@@ -43,14 +43,14 @@ control_train = trainControl(
 )
 
 #Ajuste de modelo
-gbm_model = train(sp ~ ., 
+gbm_model_all = train(sp ~ ., 
                   data = datos,
                   method = "gbm",
                   tuneGrid = hiperparametros_gbm,
                   trControl = control_train
 )
-gbm_model
-gbm_model$resample #para viisualizar resultados de todas las particiones y repeticiones
+gbm_model_all
+gbm_model_all$resample #para viisualizar resultados de todas las particiones y repeticiones
 
 #2.RF model, Random Forest ===============
 
@@ -74,14 +74,14 @@ control_train = trainControl(
 )
 
 #Ajuste de modelo
-rf_model = train(sp ~ ., 
+rf_model_all = train(sp ~ ., 
                  data = datos,
                  method = "ranger",
                  tuneGrid = hiperparametros_rf,
                  trControl = control_train,
 )
-rf_model
-rf_model$resample #para visualizar resultados de todas las particiones y repeticiones
+rf_model_all
+rf_model_all$resample #para visualizar resultados de todas las particiones y repeticiones
 
 #3.SVM model, Support Vector Machine===============
 
@@ -102,67 +102,54 @@ control_train = trainControl(
 )
 
 #Ajuste de modelo
-svm_model = train(sp ~ ., 
+svm_model_all = train(sp ~ ., 
                   data = datos,
                   method = "svmRadial",
                   tuneGrid = hiperparametros_svm,
                   trControl = control_train,
                   returnSample = TRUE,
 )
-svm_model
-svm_model$resample #para viisualizar resultados de todas las particiones y repeticiones
+svm_model_all
+svm_model_all$resample #para viisualizar resultados de todas las particiones y repeticiones
 
-# Check significative differences between hauls ----------------------------
-tallas <- read_delim(file = "datos/datos_bio_tidy.csv", delim = ",")
-glimpse(tallas)
-
-tallas.l <- pivot_longer(data = tallas, cols = skj:Others, names_to = "sp", values_to = "tallas")
-
-# tarea: ver si hay diferencies significativas entre pescas
-
-lance12 <- tallas.l%>% filter(Lance == 12) %>% select(tallas) %>%  filter(is.na(tallas) == F) %>% pull
-lance23 <- tallas.l%>% filter(Lance == 23) %>% select(tallas) %>%  filter(is.na(tallas) == F) %>% pull
-
-t.test(lance12, lance23)
 
 #Resultados----
 #crear data.frame con los resultados de los modelos
-modelos <- list(gbm = gbm_model, rf = rf_model, svm = svm_model)
-resultados_resamples <- resamples(modelos)
-resultados_resamples$values %>% head(10)
-metricas_resamples <- resultados_resamples$values %>%
+modelos_all <- list(gbm_all = gbm_model_all, rf_all = rf_model_all, svm_all = svm_model_all)
+resultados_resamples_all <- resamples(modelos)
+resultados_resamples_all$values %>% head(10)
+metricas_resamples_all <- resultados_resamples_all$values %>%
   gather(key = "modelo", value = "valor", -Resample) %>%
   separate(col = "modelo", into = c("modelo", "metrica"),
            sep = "~", remove = TRUE)
-metricas_resamples %>% head()
-write.table(x = metricas_resamples, file = "models_results.csv", sep = ";", col.names = T, row.names = F)
+metricas_resamples_all %>% head()
 #separar accuracy y kappa por modelos
-resultados_modelos = metricas_resamples %>% 
-  split(f = metricas_resamples$metrica)
-accuracy_allmodels = resultados_modelos$Accuracy #para tener un df y poder hacer la grafica
-ac = accuracy_allmodels%>% #para separar los resultados por modelos y poder hacer el test estadistico
-  split(f = accuracy_allmodels$modelo)
-kappa_allmodels = resultados_modelos$Kappa #para tener un df y poder hacer la grafica
-kp = kappa_allmodels%>% #para separar los resultados por modelos y poder hacer el test estadistico
-  split(f = kappa_allmodels$modelo)
+resultados_modelos_all = metricas_resamples_all %>% 
+  split(f = metricas_resamples_all$metrica)
+accuracy_allmodels_all = resultados_modelos_all$Accuracy #para tener un df y poder hacer la grafica
+ac_all = accuracy_allmodels_all%>% #para separar los resultados por modelos y poder hacer el test estadistico
+  split(f = accuracy_allmodels_all$modelo)
+kappa_allmodels_all = resultados_modelos_all$Kappa #para tener un df y poder hacer la grafica
+kp_all = kappa_allmodels_all%>% #para separar los resultados por modelos y poder hacer el test estadistico
+  split(f = kappa_allmodels_all$modelo)
 
 #visualizar resultados de accuracy
-accuracy_allmodels %>%
+accuracy_allmodels_all %>%
   ggplot(aes(x = Resample, y = valor))+
   geom_point()+
   facet_wrap(~ accuracy_allmodels$modelo)
 
 #accuracy por modelo------------
-accuracy_gbm_all = data.frame(ac["gbm"])
-accuracy_rf_all = data.frame(ac["rf"])
-accuracy_svm_all = data.frame(ac["svm"])
-kappa_gbm_all = data.frame(kp["gbm"])
-kappa_rf_all = data.frame(kp["rf"])
-kappa_svm_all = data.frame(kp["svm"])
+accuracy_gbm_all = data.frame(ac_all["gbm"])
+accuracy_rf_all = data.frame(ac_all["rf"])
+accuracy_svm_all = data.frame(ac_all["svm"])
+kappa_gbm_all = data.frame(kp_all["gbm"])
+kappa_rf_all = data.frame(kp_all["rf"])
+kappa_svm_all = data.frame(kp_all["svm"])
 #test-estadistico para comparar modelos ------
-t.test_1 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_rf$rf.valor)
-t.test_2 = t.test(x = accuracy_gbm$gbm.valor, y = accuracy_svm$svm.valor)
-t.test_3 = t.test(x = accuracy_svm$svm.valor, y = accuracy_rf$rf.valor)
+t.test_1 = t.test(x = accuracy_gbm_all$gbm.valor, y = accuracy_rf_all$rf.valor)
+t.test_2 = t.test(x = accuracy_gbm_all$gbm.valor, y = accuracy_svm_all$svm.valor)
+t.test_3 = t.test(x = accuracy_svm_all$svm.valor, y = accuracy_rf_all$rf.valor)
 
 accuracy_with.na = data.frame(median(accuracy_gbm_all$gbm.valor), 
                              median(accuracy_svm_all$svm.valor), 

@@ -3,6 +3,7 @@ library(caret)
 #**********************************************
 #primero vamos a ver los resultados de los modelos creados a principio
 #Valores de todas las repeticiones y particiones del modelo creado con cv y reduced data----
+#plotear accuracy y kappa del primer modelo (CV y reduced)
 metricas_resamples %>%
   ggplot(aes(x = modelo, y = valor, fill = metrica)) +
   geom_boxplot(alpha = 0.7) +
@@ -12,7 +13,10 @@ metricas_resamples %>%
        x="Method",
        y="Value",
        caption="Fuente: ")
-
+#un test estadistico de los modelos
+t.test_1 = t.test(x = accuracy_gbm_10$gbm.valor, y = accuracy_rf_10$rf.valor)
+t.test_2 = t.test(x = accuracy_gbm_10$gbm.valor, y = accuracy_svm_10$svm.valor)
+t.test_3 = t.test(x = accuracy_svm_10$svm.valor, y = accuracy_rf_10$rf.valor)
 
 #ACCURACY----
 #**********************************************
@@ -118,13 +122,30 @@ g5 <- resultados_tidy %>%
        y="Accuracy")
 g5 
 #**********************************************
+#datos unidos, completos, comparar valores ausentes (eliminados e imputados)
 
+g6 <- resultados_tidy %>%
+  filter(set == c("united_na_imp", "united_na_rm")) %>%
+  ggplot(aes(x = model, y = as.numeric(accuracy), fill = set)) +
+  geom_boxplot(alpha = 0.7) +
+  theme_minimal() +
+  theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
+  labs(title="United data, NA values imputed and removed",
+       x="Method",
+       y="Accuracy")
+g6 
 
-
-
-
-
-
+#Comparar modelos de datos unidos (reducido, NA eliminado, NA importado)
+#mejorar esto
+resultados_tidy %>%
+  filter(c(set == c("united_na_imp", "united_na_rm"), data == "reduced")) %>%
+  ggplot(aes(x = model, y = as.numeric(accuracy), fill = c(set, data))) +
+  geom_boxplot(alpha = 0.7) +
+  theme_minimal() +
+  theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
+  labs(title="United data, NA values imputed and removed",
+       x="Method",
+       y="Accuracy")
 
 
 

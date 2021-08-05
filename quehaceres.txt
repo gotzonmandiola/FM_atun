@@ -1,7 +1,10 @@
--Los modelos creados con datos reducidos a cada 10.000 (acabado).
+-Los modelos creados con datos reducidos (acabado).
 -Modelos creados con datos reducidos y lances separados (acabado).
 
--Modelos creados con todos los datos.(falta arreglar la columna con datos ausentes).
+-Modelos creados con todos los datos:
+	-Eliminando datos ausentes (acabado, buenos resultados).
+	-Con datos ausentes (No funcionan los modelos, por tanto he imputado nuevos datos estimados y 
+				me da el mismo resultado que eliminando los datos ausentes).
 
--Modelos con todos los datos y lances separados.(sin hacer)
+-Modelos con todos los datos y lances separados (acabado).
 -Predicción de datos mixtos y comparar con los porcentajes de cada especie en esos lances.(sin hacer)

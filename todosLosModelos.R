@@ -128,6 +128,12 @@ metricas_resamples <- resultados_resamples$values %>%
   separate(col = "modelo", into = c("modelo", "metrica"),
            sep = "~", remove = TRUE)
 metricas_resamples %>% head()
+#visualizar el promedio de todos los resultados de cada modelo.
+metricas_resamples %>% 
+  group_by(modelo, metrica) %>% 
+  summarise(media = mean(valor)) %>%
+  spread(key = metrica, value = media) %>%
+  arrange(desc(Accuracy))
 write.table(x = metricas_resamples, file = "models_results.csv", sep = ";", col.names = T, row.names = F)
 read.delim(file = "resultados/models_results.csv", header = T, sep = ";")
 
@@ -162,5 +168,6 @@ t.test_1 = t.test(x = accuracy_gbm_10$gbm.valor, y = accuracy_rf_10$rf.valor)
 t.test_2 = t.test(x = accuracy_gbm_10$gbm.valor, y = accuracy_svm_10$svm.valor)
 t.test_3 = t.test(x = accuracy_svm_10$svm.valor, y = accuracy_rf_10$rf.valor)
 
-
-
+t.test(x = accuracy_gbm_10$gbm.valor)
+t.test(x = accuracy_svm_10$svm.valor)
+t.test(x = accuracy_rf_10$rf.valor)
