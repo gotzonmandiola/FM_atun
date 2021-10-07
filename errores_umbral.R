@@ -12,7 +12,7 @@ skjmix %>%
   labs(title="SKJ",
        x="valor de umbral",
        y="Error",
-       colour = "modelo y lance")
+       linetype = "Modelo")
 
 yftmix %>%
   pivot_longer(cols = 2:4)%>%
@@ -25,7 +25,7 @@ yftmix %>%
   labs(title="YFT",
        x="valor de umbral",
        y="Error",
-       colour = "modelo y lance")
+       linetype = "Modelo")
 
 othermix %>%
   pivot_longer(cols = 2:4)%>%
@@ -38,7 +38,7 @@ othermix %>%
   labs(title="OTHER",
        x="valor de umbral",
        y="Error",
-       colour = "modelo y lance")
+       linetype = "Modelo")
 
 #separación de lances y calculo del error----
 datos <- read_delim(file = "datos/wide_data1000.csv", delim = ";")
@@ -233,3 +233,4 @@ othermix69 %>%
 prueba = skjmix69 %>%
   pivot_longer(cols = 2:4)%>%
   arrange(name, umbral, value)
+

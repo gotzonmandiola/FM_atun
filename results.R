@@ -4,15 +4,16 @@ library(caret)
 #primero vamos a ver los resultados de los modelos creados a principio
 #Valores de todas las repeticiones y particiones del modelo creado con cv y reduced data----
 #plotear accuracy y kappa del primer modelo (CV y reduced)
-metricas_resamples %>%
+g <- metricas_resamples %>%
   ggplot(aes(x = modelo, y = valor, fill = metrica)) +
   geom_boxplot(alpha = 0.7) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="Accuracy and Kappa",
-       x="Method",
-       y="Value",
-       caption="Fuente: ")
+  labs(title="Precisión y Kappa",
+       x="Método",
+       y="Valor") +
+  scale_fill_manual(labels=c("Precisión", "Kappa"),values=c("gray46", "ghostwhite"))
+g
 #un test estadistico de los modelos
 t.test_1 = t.test(x = accuracy_gbm_10$gbm.valor, y = accuracy_rf_10$rf.valor)
 t.test_2 = t.test(x = accuracy_gbm_10$gbm.valor, y = accuracy_svm_10$svm.valor)
@@ -53,7 +54,7 @@ unidos = data.frame(cbind(acc_svm_10_all, acc_gbm_10_all, acc_rf_10_all, acc_svm
 colnames(unidos) = c("svm_reduced", "gbm_reduced", "rf_reduced", "svm_nadeleted", "gbm_nadeleted", "rf_nadeleted", 
                      "svm_naimputed", "gbm_naimputed", "rf_naimputed")  
 #resultados formato tidy----
-resultados_tidy = data.frame(rbind(acc_svm_10_sep, acc_gbm_10_sep, acc_rf_10_sep, acc_svm_all_sep, acc_svm_all_sep, acc_gbm_all_sep, acc_rf_all_sep,
+resultados_tidy = data.frame(rbind(acc_svm_10_sep, acc_gbm_10_sep, acc_rf_10_sep, acc_svm_all_sep, acc_gbm_all_sep, acc_rf_all_sep,
                         acc_svm_10_all, acc_gbm_10_all, acc_rf_10_all, acc_svm_all, acc_gbm_all, acc_rf_all, acc_svm_all_imp,
                         acc_gbm_all_imp, acc_rf_all_imp)) 
 colnames(resultados_tidy) = c("model", "accuracy", "data", "set")
@@ -64,37 +65,45 @@ g1 <- resultados_tidy %>%
   filter(data == "reduced") %>%
   ggplot(aes(x = model, y = as.numeric(accuracy), fill = set)) +
   geom_boxplot(alpha = 0.7) +
+  ylim(0.9, 0.98) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="Reduced data",
-       x="Method",
-       y="Accuracy",
-       caption="Fuente: ")
+  labs(title="Datos reducidos",
+       x="Método",
+       y="Precisión",
+       fill = "Lances") +
+  scale_fill_manual(labels=c("Separados", "Unidos"), values=c("gray46", "ghostwhite"))
 g1 
 
 #datos completos, accuracy de modelos comparando lances unidos (eliminando NA y importando NA) y lances separados.
 g2 <- resultados_tidy %>%
-  filter(data == "complete") %>%
+  filter(data == "complete", set == c("separated", "united_na_rm")) %>%
   ggplot(aes(x = model, y = as.numeric(accuracy), fill = set)) +
   geom_boxplot(alpha = 0.7) +
+  ylim(0.9, 0.98) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="Complete data",
-       x="Method",
-       y="Accuracy",
-       caption="Fuente: ")
-g2 + scale_fill_discrete(labels=c("separated", "united, importing NA values", "united, removing NA values"))
+  labs(title="Datos completos",
+       x="Método",
+       y="Precisión",
+       fill = "Lances")
+g2 + 
+  scale_fill_manual(labels=c("separados", "unidos"), values = c("gray46", "ghostwhite"))
+
 #************************************
 #datos unidos (eliminando NA), accuracy de modelos comparando datos reducidos y completos
 g3 <- resultados_tidy %>%
   filter(set == c("united_na_rm", "united")) %>%
   ggplot(aes(x = model, y = as.numeric(accuracy), fill = data)) +
   geom_boxplot(alpha = 0.7) +
+  ylim(0.9, 0.98) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="United data, removing NA values",
-       x="Method",
-       y="Accuracy")
+  labs(title="Lances unidos",
+       x="Método",
+       y="Precisión",
+       fill = "datos") +
+  scale_fill_manual(values=c("gray46", "ghostwhite"), labels = c("Completos", "Reducidos"))
 g3 
 
 #datos unidos (importando NA), accuracy de modelos comparando datos reducidos y completos
@@ -102,9 +111,10 @@ g4 <- resultados_tidy %>%
   filter(set == c("united_na_imp", "united")) %>%
   ggplot(aes(x = model, y = as.numeric(accuracy), fill = data)) +
   geom_boxplot(alpha = 0.7) +
+  ylim(0.9, 0.98) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="United data, importing NA values
+  labs(title="United sets, importing NA values
        NA values",
        x="Method",
        y="Accuracy")
@@ -115,6 +125,7 @@ g5 <- resultados_tidy %>%
   filter(set == c("separated")) %>%
   ggplot(aes(x = model, y = as.numeric(accuracy), fill = data)) +
   geom_boxplot(alpha = 0.7) +
+  ylim(0.9, 0.98) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
   labs(title="Separated data, comparing reduced and completed data",
@@ -130,22 +141,15 @@ g6 <- resultados_tidy %>%
   geom_boxplot(alpha = 0.7) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="United data, NA values imputed and removed",
-       x="Method",
-       y="Accuracy")
+  labs(title="Lances unidos y datos completos",
+       x="Método",
+       y="Precisión",
+       fill = "Solucion aplicada") +
+  scale_fill_manual(labels = c("Eliminación de valores NA", "Importación de valores NA"), values=c("gray46", "ghostwhite"))
+  
 g6 
 
-#Comparar modelos de datos unidos (reducido, NA eliminado, NA importado)
-#mejorar esto
-resultados_tidy %>%
-  filter(c(set == c("united_na_imp", "united_na_rm"), data == "reduced")) %>%
-  ggplot(aes(x = model, y = as.numeric(accuracy), fill = c(set, data))) +
-  geom_boxplot(alpha = 0.7) +
-  theme_minimal() +
-  theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="United data, NA values imputed and removed",
-       x="Method",
-       y="Accuracy")
+
 
 
 
@@ -206,25 +210,26 @@ gkp1 <- resultados_kp_tidy %>%
   geom_boxplot(alpha = 0.7) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="Reduced data",
-       x="Method",
-       y="kappa",
-       caption="Fuente: ")
-gkp1 + scale_fill_manual(values= c("#999999", "#E69F00"))
+  labs(title="Datos reducidos",
+       x="Método",
+       y="Kappa",
+       fill = "Lances") +
+  scale_fill_manual(labels=c("Separados", "Unidos"), values=c("gray46", "ghostwhite"))
+gkp1 
 
 #datos completos, kappa de modelos comparando lances unidos (eliminando NA y importando NA) y lances separados.
 gkp2 <- resultados_kp_tidy %>%
-  filter(data == "complete") %>%
+  filter(data == "complete", set == c("separated", "united_na_rm")) %>%
   ggplot(aes(x = model, y = as.numeric(kappa), fill = set)) +
   geom_boxplot(alpha = 0.7) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="Completed data",
-       x="Method",
-       y="kappa",
-       caption="Fuente: ")
-gkp2 + scale_fill_manual(values= c("#999999", "#E69F00", "#56B4E9"), 
-                         labels=c("separated", "united, importing NA values", "united, removing NA values"))
+  labs(title="Datos completos",
+       x="Método",
+       y="Kappa",
+       fill = "Lances")
+gkp2 + 
+  scale_fill_manual(labels=c("separados", "unidos"), values = c("gray46", "ghostwhite"))
 
 
 #datos unidos (eliminando NA), kappa de modelos comparando datos reducidos y completos
@@ -234,10 +239,12 @@ gkp3 <- resultados_kp_tidy %>%
   geom_boxplot(alpha = 0.7) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="United data, removing NA values",
-       x="Method",
-       y="kappa")
-gkp3 + scale_fill_manual(values= c("#999999", "#E69F00"))
+  labs(title="Lances unidos",
+       x="Método",
+       y="Kappa",
+       fill = "datos") +
+  scale_fill_manual(values=c("gray46", "ghostwhite"), labels = c("Completos", "Reducidos"))
+gkp3 
 
 #datos unidos (importando NA), kappa de modelos comparando datos reducidos y completos
 gkp4 <- resultados_kp_tidy %>%
@@ -246,10 +253,10 @@ gkp4 <- resultados_kp_tidy %>%
   geom_boxplot(alpha = 0.7) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="United data, removing NA values",
+  labs(title="United data, importing NA values",
        x="Method",
        y="kappa")
-gkp4 + scale_fill_manual(values= c("#999999", "#E69F00"))
+gkp4 + scale_fill_manual(values=c("gray46", "ghostwhite"))
 
 #datos separados, kappa de modelos comparando datos reducidos y completos
 gkp5 <- resultados_kp_tidy %>%
@@ -258,14 +265,26 @@ gkp5 <- resultados_kp_tidy %>%
   geom_boxplot(alpha = 0.7) +
   theme_minimal() +
   theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
-  labs(title="United data, removing NA values",
+  labs(title="Separated data, removing NA values",
        x="Method",
        y="kappa")
-gkp5 + scale_fill_manual(values= c("#999999", "#E69F00"))
+gkp5 + scale_fill_manual(values=c("gray46", "ghostwhite"))
 
 
 
+gkp6 <- resultados_kp_tidy %>%
+  filter(set == c("united_na_imp", "united_na_rm")) %>%
+  ggplot(aes(x = model, y = as.numeric(kappa), fill = set)) +
+  geom_boxplot(alpha = 0.7) +
+  theme_minimal() +
+  theme(plot.title=element_text(hjust=0.5), axis.line = element_line(colour="black"))+
+  labs(title="Lances unidos y datos completos",
+       x="Método",
+       y="Kappa",
+       fill = "Solucion aplicada") +
+  scale_fill_manual(labels = c("Eliminación de valores NA", "Importación de valores NA"), values=c("gray46", "ghostwhite"))
 
+gkp6 
 
 
 

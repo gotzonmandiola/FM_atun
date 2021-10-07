@@ -116,7 +116,7 @@ svm_model_all$resample #para viisualizar resultados de todas las particiones y r
 #Resultados----
 #crear data.frame con los resultados de los modelos
 modelos_all <- list(gbm_all = gbm_model_all, rf_all = rf_model_all, svm_all = svm_model_all)
-resultados_resamples_all <- resamples(modelos)
+resultados_resamples_all <- resamples(modelos_all)
 resultados_resamples_all$values %>% head(10)
 metricas_resamples_all <- resultados_resamples_all$values %>%
   gather(key = "modelo", value = "valor", -Resample) %>%
@@ -140,12 +140,12 @@ accuracy_allmodels_all %>%
   facet_wrap(~ accuracy_allmodels$modelo)
 
 #accuracy por modelo------------
-accuracy_gbm_all = data.frame(ac_all["gbm"])
-accuracy_rf_all = data.frame(ac_all["rf"])
-accuracy_svm_all = data.frame(ac_all["svm"])
-kappa_gbm_all = data.frame(kp_all["gbm"])
-kappa_rf_all = data.frame(kp_all["rf"])
-kappa_svm_all = data.frame(kp_all["svm"])
+accuracy_gbm_all = data.frame(ac_all["gbm_all"])
+accuracy_rf_all = data.frame(ac_all["rf_all"])
+accuracy_svm_all = data.frame(ac_all["svm_all"])
+kappa_gbm_all = data.frame(kp_all["gbm_all"])
+kappa_rf_all = data.frame(kp_all["rf_all"])
+kappa_svm_all = data.frame(kp_all["svm_all"])
 #test-estadistico para comparar modelos ------
 t.test_1 = t.test(x = accuracy_gbm_all$gbm.valor, y = accuracy_rf_all$rf.valor)
 t.test_2 = t.test(x = accuracy_gbm_all$gbm.valor, y = accuracy_svm_all$svm.valor)
